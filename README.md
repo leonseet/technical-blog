@@ -1,1 +1,1 @@
-# technical_blog
+# technical-blog
