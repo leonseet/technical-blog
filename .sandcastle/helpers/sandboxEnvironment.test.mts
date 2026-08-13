@@ -54,6 +54,18 @@ test("every configured mount's source exists, so Docker never creates one as roo
   }
 });
 
+test("an empty host CA dir is never mounted over the image's trust store", () => {
+  const caMounts = (codingProviderOptions.mounts ?? []).filter(
+    (mount) => mount.sandboxPath === "/etc/ssl/certs",
+  );
+  for (const mount of caMounts) {
+    assert.ok(
+      fs.readdirSync(mount.hostPath).length > 0,
+      "mounting an empty /etc/ssl/certs leaves the sandbox with no trust roots",
+    );
+  }
+});
+
 test("the worktrees dir is mounted read-only at its host path for prune safety", () => {
   const worktreesDir = path.join(process.cwd(), ".sandcastle", "worktrees");
   assert.deepEqual(

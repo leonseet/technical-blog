@@ -39,6 +39,20 @@ export function mountsIfPresent(candidates: readonly Mount[]): Mount[] {
   return candidates.filter((mount) => fs.existsSync(mount.hostPath));
 }
 
+/** macOS keeps its trust store in `/etc/ssl/cert.pem` and leaves
+ *  `/etc/ssl/certs` an empty directory. Mounting that over the image's own
+ *  bundle leaves the sandbox with no trust roots at all, and every agent dies
+ *  on `UnknownIssuer`. An empty source is worse than no mount. */
+function hasEntries(dir: string): boolean {
+  try {
+    return fs.readdirSync(dir).length > 0;
+  } catch {
+    return false;
+  }
+}
+
+const hostCaCerts = "/etc/ssl/certs";
+
 const hostCodexAuth = path.join(os.homedir(), ".codex", "auth.json");
 
 export const codingProviderOptions: DockerOptions = {
@@ -49,11 +63,9 @@ export const codingProviderOptions: DockerOptions = {
       sandboxPath: sandboxCodexAuth,
       readonly: true,
     },
-    {
-      hostPath: "/etc/ssl/certs",
-      sandboxPath: "/etc/ssl/certs",
-      readonly: true,
-    },
+    ...(hasEntries(hostCaCerts)
+      ? [{ hostPath: hostCaCerts, sandboxPath: hostCaCerts, readonly: true }]
+      : []),
     {
       hostPath: path.join(os.homedir(), ".cache", "uv"),
       sandboxPath: "/home/agent/.cache/uv",
