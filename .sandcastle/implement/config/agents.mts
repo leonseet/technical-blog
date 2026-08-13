@@ -22,8 +22,8 @@ const codexAgentConfig = (
   reasoningEffort: NonNullable<sandcastle.CodexOptions["effort"]>,
 ): CodingAgentConfig => ({ agent: "codex", modelId, reasoningEffort });
 
-const GPT_LOW = codexAgentConfig("gpt-5.6", "low");
-const GPT_MED = codexAgentConfig("gpt-5.6", "medium");
+const GPT_LOW = codexAgentConfig("gpt-5.6-sol", "low");
+const GPT_MED = codexAgentConfig("gpt-5.6-sol", "medium");
 const CLAUDE_MED = claudeAgentConfig("claude-opus-5", "medium");
 const CLAUDE_HIGH = claudeAgentConfig("claude-opus-5", "high");
 
